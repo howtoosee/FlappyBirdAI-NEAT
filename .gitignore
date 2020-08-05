@@ -1,0 +1,9 @@
+# IDE files
+.idea
+
+# MacOS files
+.DS_Store
+
+# Python files
+venv
+__pycache__
