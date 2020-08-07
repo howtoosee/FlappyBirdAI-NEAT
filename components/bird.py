@@ -1,4 +1,4 @@
-from constants import *
+from components.constants import *
 
 
 class Bird:

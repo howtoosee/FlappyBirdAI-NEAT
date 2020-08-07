@@ -1,6 +1,6 @@
 import random
 
-from constants import *
+from components.constants import *
 
 
 class Pipe:

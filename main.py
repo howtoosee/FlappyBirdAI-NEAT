@@ -1,7 +1,7 @@
 import os
 import neat  # !! this refers to `neat_python` not `neat` !! #
 
-from game import Game
+from components import Game
 
 
 def run(config_path) -> None:

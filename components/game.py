@@ -1,9 +1,9 @@
 import neat  # !! this refers to `neat_python` not `neat` !! #
 
-from constants import *
-from bird import Bird
-from pipe import Pipe
-from base import Base
+from components.constants import *
+from components.bird import Bird
+from components.pipe import Pipe
+from components.base import Base
 
 
 MIN_JUMP_THRESHOLD = 0.5  # minimum output value from neural network to jump
