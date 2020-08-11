@@ -2,8 +2,8 @@ import neat  # !! this refers to `neat_python` not `neat` !! #
 
 from components.constants import *
 from components.bird import Bird
-from components.pipe import Pipe
 from components.base import Base
+from components.pipe import Pipe
 
 
 MIN_JUMP_THRESHOLD = 0.5  # minimum output value from neural network to jump
@@ -29,15 +29,15 @@ class Game:
         self.gen = 0
         self.clock = pygame.time.Clock()
 
-        self.nets = []  # brains list
-        self.ge = []  # genomes list
         self.birds = []  # birds list
-        # these 3 lists have corresponding indexes
 
         self.pipes = [Pipe(WIN_WIDTH)]
         self.base = Base(FLOOR_HEIGHT)
 
         self.window = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+
+        self.LINE_THICKNESS = 1
+        self.tick_rate = 30
 
 
     def reset(self) -> None:
@@ -50,10 +50,7 @@ class Game:
 
         self.gen += 1
 
-        self.nets = []  # brains list
-        self.ge = []  # genomes list
-        self.birds = []  # birds list
-        # these 3 lists have corresponding indexes
+        self.birds = []
 
         self.pipes = [Pipe(WIN_WIDTH)]
         self.base = Base(FLOOR_HEIGHT)
@@ -94,28 +91,27 @@ class Game:
         for bird in self.birds:
             if self.draw_lines:
                 try:
-                    LINE_THICKNESS = 1
                     # line to left corners of pipes
                     pygame.draw.line(self.window, (255, 0, 100),
                                      (bird.x + bird.img.get_width() / 2, bird.y + bird.img.get_height() / 2),
                                      (self.pipes[pipe_ind].x, self.pipes[pipe_ind].height),
-                                     LINE_THICKNESS)
+                                     self.LINE_THICKNESS)
                     pygame.draw.line(self.window, (255, 0, 100),
                                      (bird.x + bird.img.get_width() / 2, bird.y + bird.img.get_height() / 2),
                                      (self.pipes[pipe_ind].x, self.pipes[pipe_ind].y_bottom),
-                                     LINE_THICKNESS)
+                                     self.LINE_THICKNESS)
 
                     # line to right corners of pipes
                     pygame.draw.line(self.window, (255, 100, 0),
                                      (bird.x + bird.img.get_width() / 2, bird.y + bird.img.get_height() / 2),
                                      (self.pipes[pipe_ind].x + self.pipes[pipe_ind].PIPE_TOP_IMG.get_width(),
                                       self.pipes[pipe_ind].height),
-                                     LINE_THICKNESS)
+                                     self.LINE_THICKNESS)
                     pygame.draw.line(self.window, (255, 100, 0),
                                      (bird.x + bird.img.get_width() / 2, bird.y + bird.img.get_height() / 2),
                                      (self.pipes[pipe_ind].x + self.pipes[pipe_ind].PIPE_BOTTOM_IMG.get_width(),
                                       self.pipes[pipe_ind].y_bottom),
-                                     LINE_THICKNESS)
+                                     self.LINE_THICKNESS)
                 except:
                     pass
 
@@ -151,26 +147,27 @@ class Game:
             genome.fitness = 0
             net = neat.nn.FeedForwardNetwork.create(genome, config)
 
-            self.nets.append(net)
-            self.ge.append(genome)
-            self.birds.append(Bird(230, 350))
+            bird = Bird(230, 350)
+            bird.genome = genome
+            bird.network = net
+
+            self.birds.append(bird)
 
 
-    def kill_bird(self, i, decrease_fitness=True) -> None:
+    def kill_bird(self, bird, decrease_fitness=True, decrease_amount=3) -> None:
         """
         Kill a bird at index i and decrease fitness if necessary
-        :param i: index of bird
+        :param bird: bird object to be killed
         :param decrease_fitness: whether to decrease fitness
+        :param decrease_amount: amount to decrease fitness by
         :return: None
         """
 
         if decrease_fitness:
-            self.ge[i].fitness -= 3
+            bird.genome.fitness -= decrease_amount
 
         # remove birds from lists
-        self.birds.pop(i)
-        self.nets.pop(i)
-        self.ge.pop(i)
+        self.birds.remove(bird)
 
 
     def increase_fitness(self) -> None:
@@ -179,8 +176,8 @@ class Game:
         :return: None
         """
 
-        for genome in self.ge:
-            genome.fitness += 5
+        for bird in self.birds:
+            bird.genome.fitness += 5
 
 
     def make_birds_jump(self, pipe_ind) -> None:
@@ -190,11 +187,11 @@ class Game:
         :return: None
         """
 
-        for (i, bird) in enumerate(self.birds):
-            self.ge[i].fitness += 1
+        for bird in self.birds:
+            bird.genome.fitness += 1
             bird.move()
 
-            output = self.nets[i].activate((
+            output = bird.network.activate((
                 bird.y,
                 abs(bird.y - self.pipes[pipe_ind].y_bottom),
                 abs(bird.y - self.pipes[pipe_ind].height),
@@ -243,9 +240,9 @@ class Game:
             pipe.move()
 
             # collision detection with pipe
-            for (i, bird) in enumerate(self.birds):
+            for bird in self.birds:
                 if pipe.collide(bird):
-                    self.kill_bird(i, decrease_fitness=True)
+                    self.kill_bird(bird, decrease_fitness=True)
 
             if not pipe.passed and pipe.x + pipe.PIPE_TOP_IMG.get_width() < bird.x:
                 pipe.passed = True
@@ -269,9 +266,9 @@ class Game:
         :return: None
         """
 
-        for (i, bird) in enumerate(self.birds):
+        for bird in self.birds:
             if bird.y + bird.img.get_height() - 10 >= FLOOR_HEIGHT or bird.y < -50:
-                self.kill_bird(i, decrease_fitness=True)
+                self.kill_bird(bird, decrease_fitness=True)
 
 
     def update_pipes_and_score(self, removed_pipes) -> None:
@@ -316,7 +313,7 @@ class Game:
 
         run = True
         while run and len(self.birds) > 0:
-            self.clock.tick(30)
+            self.clock.tick(self.tick_rate)
 
             if self.should_quit(pygame.event.get()):
                 run = False

@@ -12,11 +12,16 @@ ENV_VEL = 5
 
 FLOOR_HEIGHT = 730
 
+ROOT_DIR = os.path.dirname(os.path.abspath("main.py"))
+print(ROOT_DIR)
+IMG_DIR = ROOT_DIR + '/images/'
+print(IMG_DIR)
+
 BIRD_IMGS = [
-    pygame.transform.scale2x(pygame.image.load(os.path.join('../images', 'bird1.png'))),
-    pygame.transform.scale2x(pygame.image.load(os.path.join('../images', 'bird2.png'))),
-    pygame.transform.scale2x(pygame.image.load(os.path.join('../images', 'bird3.png')))
+    pygame.transform.scale2x(pygame.image.load(IMG_DIR + 'bird1.png')),
+    pygame.transform.scale2x(pygame.image.load(IMG_DIR + 'bird2.png')),
+    pygame.transform.scale2x(pygame.image.load(IMG_DIR + 'bird3.png'))
 ]
-PIPE_IMG = pygame.transform.scale2x(pygame.image.load(os.path.join('../images', 'pipe.png')))
-BASE_IMG = pygame.transform.scale2x(pygame.image.load(os.path.join('../images', 'base.png')))
-BG_IMG = pygame.transform.scale2x(pygame.image.load(os.path.join('../images', 'bg.png')))
+PIPE_IMG = pygame.transform.scale2x(pygame.image.load(IMG_DIR + 'pipe.png'))
+BASE_IMG = pygame.transform.scale2x(pygame.image.load(IMG_DIR + 'base.png'))
+BG_IMG = pygame.transform.scale2x(pygame.image.load(IMG_DIR + 'bg.png'))

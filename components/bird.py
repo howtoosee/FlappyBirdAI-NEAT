@@ -31,6 +31,9 @@ class Bird:
         self.image_ind = 0  # keep track of image index
         self.img = self.IMGS[0]  # keep track of actual image
 
+        self.genome = None  # genome
+        self.network = None  # brain / neural network
+
 
     def jump(self) -> None:
         """
