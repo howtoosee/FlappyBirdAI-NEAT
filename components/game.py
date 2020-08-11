@@ -56,7 +56,8 @@ class Game:
         self.base = Base(FLOOR_HEIGHT)
 
 
-    def should_quit(self, events) -> bool:
+    @staticmethod
+    def should_quit(events) -> bool:
         """
         Determines if we should quit the game
         :param events: pygame events
